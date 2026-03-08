@@ -14,94 +14,114 @@
 </head>
 
 <body>
-
     <div class="bg-blob blob1"></div>
     <div class="bg-blob blob2"></div>
     <div class="bg-blob blob3"></div>
 
     <div class="container">
-
-        <!-- HERO -->
         <section class="hero">
             <p class="hero-eyebrow">⏳ A reality check</p>
             <h1>WHERE YOUR<br><span>TIME WENT</span></h1>
-            <p class="hero-sub">Enter how much time you spend on an activity. We'll show you exactly what that time is
-                worth — and what it cost you.</p>
+            <p class="hero-sub">Add every activity that steals your time. We'll show you the full combined cost — and
+                what it could have been.</p>
         </section>
 
         <!-- FORM -->
-        <div class="form-card" id="formSection">
-            <div class="form-grid">
-                <div class="field">
-                    <label>Hours per day</label>
-                    <input type="number" id="hoursPerDay" placeholder="3" min="0.1" max="24" step="0.1" value="">
+        <div id="formSection">
+            <div class="form-card">
+                <p class="form-card-title">+ Add an activity</p>
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Activity</label>
+                        <select id="activitySelect" onchange="handleActivityChange()">
+                            <option value="Gaming">🎮 Gaming</option>
+                            <option value="Social Media">📱 Social Media</option>
+                            <option value="Watching Videos">📺 Watching Videos</option>
+                            <option value="Browsing the Web">🌐 Browsing the Web</option>
+                            <option value="Drinking / Partying">🍺 Drinking / Partying</option>
+                            <option value="Online Shopping">🛍 Online Shopping</option>
+                            <option value="Doomscrolling News">📰 Doomscrolling</option>
+                            <option value="custom">✏️ Custom...</option>
+                        </select>
+                        <div class="custom-name-wrap" id="customNameWrap">
+                            <input type="text" id="customName" placeholder="e.g. Watching TikTok" maxlength="40">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Hours / day</label>
+                        <input type="number" id="hoursPerDay" placeholder="2.5" min="0.1" max="24" step="0.5">
+                    </div>
+                    <div class="field">
+                        <label>Years doing it</label>
+                        <input type="number" id="years" placeholder="5" min="0.1" max="80" step="0.5">
+                    </div>
                 </div>
-                <div class="field">
-                    <label>Years doing it</label>
-                    <input type="number" id="years" placeholder="5" min="0.1" max="80" step="0.5" value="">
-                </div>
-                <div class="field full">
-                    <label>Activity</label>
-                    <select id="activity">
-                        <option value="Gaming">🎮 Gaming</option>
-                        <option value="Social Media">📱 Social Media</option>
-                        <option value="Watching Videos">📺 Watching Videos</option>
-                        <option value="Other">✦ Other</option>
-                    </select>
+                <button class="add-btn" id="addBtn" onclick="addActivity()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    ADD TO MY LIST
+                </button>
+
+                <!-- DAILY HOURS METER -->
+                <div class="day-meter" id="dayMeter">
+                    <div class="day-meter-top">
+                        <span class="day-meter-label">Daily hours used</span>
+                        <span class="day-meter-count ok" id="meterCount">0 / 24h</span>
+                    </div>
+                    <div class="day-meter-track">
+                        <div class="day-meter-fill" id="meterFill" style="width:0%"></div>
+                    </div>
+                    <div class="day-meter-msg" id="meterMsg">Add activities to see how much of your day they consume.
+                    </div>
                 </div>
             </div>
-            <button class="cta-btn" onclick="calculate()">SHOW ME THE TRUTH →</button>
+
+            <div class="empty-hint show" id="emptyHint">No activities yet — add one above, then keep going.</div>
+            <div class="activity-list" id="activityList"></div>
+
+            <button class="cta-btn" id="calcBtn" onclick="calculate()" disabled>SHOW ME THE TRUTH →</button>
         </div>
 
         <!-- RESULTS -->
         <div class="results" id="results">
-
             <div class="result-header">
-                <p class="label">You have spent</p>
+                <p class="label">Combined time across all activities</p>
                 <div class="big-hours" id="bigHours">0</div>
-                <div class="big-hours-sub">HOURS OF YOUR LIFE</div>
-                <span class="activity-badge" id="activityBadge">on Gaming</span>
+                <div class="big-hours-sub">TOTAL HOURS OF YOUR LIFE</div>
+            </div>
+
+            <div class="breakdown-section">
+                <p class="breakdown-title">Breakdown by activity</p>
+                <div class="breakdown-list" id="breakdownList"></div>
             </div>
 
             <div class="cards">
-                <!-- Money -->
                 <div class="card money">
                     <span class="card-icon">💰</span>
                     <div class="card-value" id="moneyVal">$0</div>
-                    <div class="card-desc">
-                        <strong>Potential earnings lost.</strong><br>
-                        At $15/hr, this time could have made you financially free.
-                    </div>
+                    <div class="card-desc"><strong>Potential earnings lost.</strong><br>At $15/hr, this time could have
+                        made you financially free.</div>
                 </div>
-
-                <!-- Skills -->
                 <div class="card skills">
                     <span class="card-icon">🧠</span>
                     <div class="card-value" id="skillsVal">0</div>
-                    <div class="card-desc">
-                        <strong id="skillsLabel">Skills mastered.</strong><br>
-                        It takes 10,000 hours to master a skill at world-class level.
-                    </div>
+                    <div class="card-desc"><strong id="skillsLabel">Skills mastered.</strong><br>It takes 10,000 hours
+                        to master a skill at world-class level.</div>
                 </div>
-
-                <!-- Projects -->
                 <div class="card projects">
                     <span class="card-icon">🔨</span>
                     <div class="card-value" id="projectsVal">0</div>
-                    <div class="card-desc">
-                        <strong>Projects you could have built.</strong><br>
-                        A small project takes ~20 hours. Imagine the portfolio.
-                    </div>
+                    <div class="card-desc"><strong>Projects you could have built.</strong><br>A small project takes ~20
+                        hrs. Imagine the portfolio.</div>
                 </div>
-
-                <!-- Life -->
                 <div class="card life">
                     <span class="card-icon">⏱</span>
                     <div class="card-value" id="lifeVal">0</div>
-                    <div class="card-desc">
-                        <strong>Hours over 40 years.</strong><br>
-                        If this habit continues, here's your lifetime total.
-                    </div>
+                    <div class="card-desc"><strong>Hours over 40 years.</strong><br>If these habits continue, here's
+                        your lifetime total.</div>
                     <div class="life-card-extra">
                         <div class="life-bar-wrap">
                             <div class="life-bar-fill" id="lifeBar"></div>
@@ -111,14 +131,12 @@
                 </div>
             </div>
 
-            <!-- Wake-up call -->
-            <div class="wake-banner" id="wakeBanner">
-                <strong id="wakeTitle">This is your wake-up call.</strong>
-                <p id="wakeText">Time is the only resource you can never get back.</p>
-                <span class="quote" id="wakeQuote">"THE COST OF DOING NOTHING IS EVERYTHING."</span>
+            <div class="wake-banner">
+                <strong id="wakeTitle"></strong>
+                <p id="wakeText"></p>
+                <span class="quote" id="wakeQuote"></span>
             </div>
 
-            <!-- Share -->
             <div class="share-section">
                 <button class="share-btn" onclick="shareResult()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -133,13 +151,10 @@
                 <div class="share-toast" id="shareToast">✓ COPIED TO CLIPBOARD</div>
             </div>
 
-            <button class="recalc-btn" onclick="recalculate()">← RECALCULATE</button>
-
+            <button class="recalc-btn" onclick="recalculate()">← EDIT ACTIVITIES</button>
         </div>
-
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <div class="container">
             <p>WHERE YOUR TIME WENT · Time is your most finite resource. Spend it wisely.</p>
